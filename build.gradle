@@ -25,7 +25,8 @@ jar {
 }
 
 dependencies {
-
+//	implementation (':user-service') {
+//		transitive = false}
 	// Spring Boot
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'org.springframework.boot:spring-boot-devtools'
@@ -78,6 +79,9 @@ dependencies {
 
 	// JUnit
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// Eureka
+	implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-eureka-client', version: '4.1.2'
 
 	// Test
 	testImplementation 'org.springframework.security:spring-security-test'

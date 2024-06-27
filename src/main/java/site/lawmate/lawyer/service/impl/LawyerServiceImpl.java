@@ -9,6 +9,7 @@ import site.lawmate.lawyer.component.Messenger;
 import site.lawmate.lawyer.domain.dto.LawyerDto;
 import site.lawmate.lawyer.domain.model.LawyerDetailModel;
 import site.lawmate.lawyer.domain.model.LawyerModel;
+import site.lawmate.lawyer.domain.model.ReplyModel;
 import site.lawmate.lawyer.repository.LawyerDetailRepository;
 import site.lawmate.lawyer.repository.LawyerRepository;
 import site.lawmate.lawyer.service.LawyerService;
@@ -17,7 +18,6 @@ import site.lawmate.lawyer.service.LawyerService;
 @Slf4j
 @RequiredArgsConstructor
 public class LawyerServiceImpl implements LawyerService {
-
 
     private final LawyerRepository lawyerRepository;
     private final LawyerDetailRepository lawyerDetailRepository;
@@ -70,11 +70,6 @@ public class LawyerServiceImpl implements LawyerService {
                                 lawyer.setDetail(savedDetail);
                                 return lawyerRepository.save(lawyer);
                             });
-//                .flatMap(lawyer -> {
-//                    lawyerDetail.setId(id);
-//                    return lawyerDetailRepository.save(lawyerDetail)
-//                            .thenReturn(lawyer);
-//                });
                 });}
 
     public Mono<LawyerDetailModel> getLawyerDetailById(String id) {
@@ -82,18 +77,22 @@ public class LawyerServiceImpl implements LawyerService {
                 .map(LawyerModel::getDetail)
                 ;}
 
-    public Mono<Messenger> addLawyer(LawyerModel lawyer) {
-        return lawyerRepository.save(lawyer).flatMap(i -> Mono.just(Messenger.builder().message("SUCCESS").build()))
-                .switchIfEmpty(Mono.just(Messenger.builder().message("FAILURE").build()))
-                ;
+    public Mono<LawyerModel> addLawyer(LawyerModel lawyer) {
+        return lawyerRepository.save(lawyer);
     }
 
     public Mono<LawyerModel> updateLawyer(String id, LawyerModel lawyer) {
         return lawyerRepository.findById(id)
                 .flatMap(optionalLawyer -> {
-                    optionalLawyer.setPassword(lawyer.getPassword());
-                    optionalLawyer.setMid(lawyer.getMid());
-                    optionalLawyer.setPhone(lawyer.getPhone());
+                    if (lawyer.getPassword() != null) {
+                        optionalLawyer.setPassword(lawyer.getPassword());
+                    }
+                    if (lawyer.getMid() != null) {
+                        optionalLawyer.setMid(lawyer.getMid());
+                    }
+                    if (lawyer.getPhone() != null) {
+                        optionalLawyer.setPhone(lawyer.getPhone());
+                    }
                     return lawyerRepository.save(optionalLawyer);
                 })
                 .switchIfEmpty(Mono.empty());
@@ -122,7 +121,10 @@ public class LawyerServiceImpl implements LawyerService {
                 });
     }
 
-
+    public Flux<ReplyModel> getRepliesById(String id) {
+        return lawyerRepository.findById(id)
+                .flatMapMany(lawyerModel -> Flux.fromIterable((Iterable<ReplyModel>) lawyerModel.getReplies()));
+    }
 
     // 시큐리티 로그인
 

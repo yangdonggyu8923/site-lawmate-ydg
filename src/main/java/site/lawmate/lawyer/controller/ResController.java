@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -18,7 +19,7 @@ import site.lawmate.lawyer.service.impl.ResServiceImpl;
 @ApiResponses(value = {
         @ApiResponse(responseCode = "400", description = "Invalid ID supplied"),
         @ApiResponse(responseCode = "404", description = "Customer not found")})
-@RequestMapping(path = "/api/reservation")
+@RequestMapping(path = "/reservation")
 public class ResController {
     private final ResServiceImpl service;
 
@@ -28,20 +29,19 @@ public class ResController {
 //        return service.getReservationsByDate(date);
 //    }
 
-    @PostMapping("/add")
-    public Mono<ResModel> createReservation(@RequestBody ResModel reservation) {
-        return service.createReservation(reservation);
+    @PostMapping("/save")
+    public ResponseEntity<Mono<ResModel>> createReservation(@RequestBody ResModel reservation) {
+        return ResponseEntity.ok(service.createReservation(reservation));
     }
 
-    @PatchMapping("/update/{id}")
-    public Mono<ResModel> updateReservation(@PathVariable("id") String id, @RequestBody ResModel res) {
-        return service.updateReservation(id, res);
+    @PatchMapping("/{id}")
+    public ResponseEntity<Mono<ResModel>> updateReservation(@PathVariable("id") String id, @RequestBody ResModel res) {
+        return ResponseEntity.ok(service.updateReservation(id, res));
     }
 
-    @GetMapping("/list")
-    @ResponseStatus(HttpStatus.OK)
-    public Flux<ResModel> getAllReservations() {
-        return service.getAllReservations();
+    @GetMapping("/all")
+    public ResponseEntity<Flux<ResModel>> getAllReservations() {
+        return ResponseEntity.ok(service.getAllReservations());
     }
 
 //    @GetMapping("/findByLawyerId/{id}")
@@ -51,9 +51,9 @@ public class ResController {
 //    }
 
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public Mono<Void> deleteReservation(@PathVariable("id") String id) {
-        return service.deleteReservation(id);
+    public ResponseEntity<Mono<Void>> deleteReservation(@PathVariable("id") String id) {
+        return ResponseEntity.ok(service.deleteReservation(id));
     }
 }
